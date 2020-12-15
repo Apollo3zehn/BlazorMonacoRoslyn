@@ -1,0 +1,14 @@
+@page "/"
+
+<div class="monaco-box">
+    <div id="monaco-editor" class="monaco-editor-container"></div>
+</div>
+<div class="diagnostics-box">
+    @if (this.Diagnostics is not null)
+    {
+        @foreach (var diagnostic in this.Diagnostics)
+        {
+            <div>(@((diagnostic.Start.Line + 1) + ", " + (diagnostic.Start.Character + 1))): @diagnostic.Message</div>
+        }
+    }
+</div>

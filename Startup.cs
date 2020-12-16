@@ -1,18 +1,12 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Neuer_Ordner.Data;
+using BlazorMonacoRoslyn.Data;
 using OneDas.DataManagement.Explorer.Services;
 
-namespace Neuer_Ordner
+namespace BlazorMonacoRoslyn
 {
     public class Startup
     {

@@ -2,7 +2,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Neuer_Ordner.Data
+namespace BlazorMonacoRoslyn.Data
 {
     public class WeatherForecastService
     {

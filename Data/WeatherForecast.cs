@@ -1,6 +1,6 @@
 using System;
 
-namespace Neuer_Ordner.Data
+namespace BlazorMonacoRoslyn.Data
 {
     public class WeatherForecast
     {

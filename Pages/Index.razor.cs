@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using static OneDas.DataManagement.Explorer.Services.MonacoService;
 
-namespace Neuer_Ordner.Pages
+namespace BlazorMonacoRoslyn.Pages
 {
     public partial class Index
     {

@@ -7,13 +7,6 @@ function CreateMonacoEditor(editorId, options) {
 
 function RegisterMonacoProviders(editorId, dotnetHelper) {
 
-    // document semantic tokens provider
-    //window.monaco.languages.registerDocumentSemanticTokensProvider("csharp", {
-    //    provideDocumentSemanticTokens: (model, lastResultId) => {
-    //        return this.provideDocumentSemanticTokens(item, lastResultId, dotnetHelper)
-    //    }
-    //});
-
     // completionItem provider
     window.monaco.languages.registerCompletionItemProvider("csharp", {
         triggerCharacters: ["."],
@@ -25,39 +18,13 @@ function RegisterMonacoProviders(editorId, dotnetHelper) {
         }
     });
 
-    // signatureHelp provider
-    window.monaco.languages.registerSignatureHelpProvider("csharp", {
-        signatureHelpTriggerCharacters: ['('],
-        provideSignatureHelp: (model, position) => {
-            return this.provideSignatureHelp(model, position, dotnetHelper)
-        }
-    });
-
-    // hover provider
-    window.monaco.languages.registerHoverProvider("csharp", {
-        provideHover: (model, position) => {
-            return this.provideHover(model, position, dotnetHelper)
-        }
-    });
-
     // diagnostics
     var editor = this._getEditor(editorId);
 
     editor.onDidChangeModelContent(async e => {
-
         var code = editor.getValue();
         await dotnetHelper.invokeMethodAsync("UpdateDiagnosticsAsync", code);
     })
-}
-
-function SetMonacoValue(editorId, value) {
-    var editor = this._getEditor(editorId);
-    editor.setValue(value);
-}
-
-function GetMonacoValue(editorId, value) {
-    var editor = this._getEditor(editorId);
-    return editor.getValue();
 }
 
 function SetMonacoDiagnostics(editorId, diagnostics) {
@@ -85,6 +52,8 @@ function _getEditor(editorId)
 
     return editorEntry.editor;
 }
+
+/* below code belongs to OmniSharp (with minor changes) */
 
 /* MIT License
  *

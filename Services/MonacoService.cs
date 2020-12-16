@@ -15,35 +15,6 @@ namespace OneDas.DataManagement.Explorer.Services
 {
     public class MonacoService
     {
-        /// <summary>
-        /// Blazor plus Roslyn - strange behavior:
-        /// 
-        /// 1. it is required to divide completions and diagnostics in separate projects.
-        /// 2. Whenever anything except the code property changes (like the list of requested projects),
-        /// DO NOT UPDATE THE code in one of the previously mentioned projects. Only update the code 
-        /// of other attached files (like the database code file).
-        /// 
-        /// Both issues lead to DEADLOCKS in Blazor. Blazor tasks are chained (task.ContinueWith(...)), 
-        /// and suddenly one of these tasks never completes, and so does the rest of the chain. 
-        /// I have debugged through the SignalR/Blazor code and found only that one tasks never completes.
-        /// Whenever the Roslyn method Workspace.TryApplyChanges() is skipped (i.e. when the 'requested projects 
-        /// modal' windows closes and the code is updated), Blazor continues to work.
-        /// 
-        /// I have tried to add locks and use separate threads to execute the "TryApplyChanges" method but
-        /// nothing helps. Maybe a separate process helps. What could be the relation of Blazor and Roslyn?
-        /// Maybe Roslyn modifies the thread or task the status and then Blazor is unable to complete the 
-        /// current task? I thought the reason could be too many JS->Dotnet and Dotnet->JS calls, but 
-        /// commenting out event callbacks to break that callback ping pong did not change anything.
-        /// 
-        /// Conclusion:
-        ///     - Blazor stops executing user defined callbacks (i.e. "InvokeDotnetFromJS") because of tasks
-        ///     that never complete.
-        ///     - This is only ever caused when Roslyn's Workspace.TryApplyChanges() method is called.
-        ///     
-        /// Strange.
-        /// 
-        /// </summary>
-
         #region "Events"
 
         public event EventHandler<List<Diagnostic>> DiagnosticsUpdated;
@@ -112,26 +83,22 @@ namespace {nameof(OneDas)}.{nameof(DataManagement)}.{nameof(Explorer)}
         [JSInvokable]
         public async Task<CompletionResponse> GetCompletionAsync(string code, CompletionRequest completionRequest)
         {
+            Console.WriteLine("Invoking GetCompletionsAsnyc() ...");
+
             _completionProject.UpdateCode(_completionProject.DocumentId, code);
 
             var document = _completionProject.Workspace.CurrentSolution.GetDocument(_completionProject.DocumentId);
             var completionResponse = await _completionService.Handle(completionRequest, document);
 
-            return completionResponse;
-        }
-
-        [JSInvokable]
-        public async Task<CompletionResolveResponse> GetCompletionResolveAsync(CompletionResolveRequest completionResolveRequest)
-        {
-            var document = _completionProject.Workspace.CurrentSolution.GetDocument(_completionProject.DocumentId);
-            var completionResponse = await _completionService.Handle(completionResolveRequest, document);
-
+            Console.WriteLine("Invoking GetCompletionsAsnyc() ... Done.");
             return completionResponse;
         }
 
         [JSInvokable]
         public async Task UpdateDiagnosticsAsync(string code = null)
         {
+            Console.WriteLine("Invoking UpdateDiagnosticsAsync() ...");
+
             _diagnosticProject.UpdateCode(_diagnosticProject.DocumentId, code);
 
             var compilation = await _diagnosticProject.Workspace.CurrentSolution.Projects.First().GetCompilationAsync();
@@ -156,14 +123,7 @@ namespace {nameof(OneDas)}.{nameof(DataManagement)}.{nameof(Explorer)}
                 .ToList();
 
             this.OnDiagnosticsUpdated(diagnostics);
-        }
-
-        public void SetValues(string code, string sampleRate, List<string> requestedProjectIds)
-        {
-            _completionProject.SetValues(code, sampleRate, requestedProjectIds);
-            _diagnosticProject.SetValues(code, sampleRate, requestedProjectIds);
-
-            _ = this.UpdateDiagnosticsAsync();
+            Console.WriteLine("Invoking UpdateDiagnosticsAsync() ... Done.");
         }
 
         private void OnDiagnosticsUpdated(List<Diagnostic> diagnostics)

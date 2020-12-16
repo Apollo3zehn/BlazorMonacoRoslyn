@@ -10,9 +10,6 @@ function RegisterMonacoProviders(editorId, dotnetHelper) {
     // completionItem provider
     window.monaco.languages.registerCompletionItemProvider("csharp", {
         triggerCharacters: ["."],
-        resolveCompletionItem: (item) => {
-            return this.resolveCompletionItem(item, dotnetHelper)
-        },
         provideCompletionItems: (model, position, context) => {
             return this.provideCompletionItems(model, position, context, dotnetHelper)
         }
@@ -22,8 +19,10 @@ function RegisterMonacoProviders(editorId, dotnetHelper) {
     var editor = this._getEditor(editorId);
 
     editor.onDidChangeModelContent(async e => {
+        console.log("invoking UpdateDiagnosticsAsync ...")
         var code = editor.getValue();
         await dotnetHelper.invokeMethodAsync("UpdateDiagnosticsAsync", code);
+        console.log("invoking UpdateDiagnosticsAsync ... Done")
     })
 }
 
@@ -85,7 +84,9 @@ async function provideCompletionItems(model, position, context, dotnetHelper) {
     try {
 
         let code = model.getValue();
+        console.log("invoking GetCompletionAsync ...")
         const response = await dotnetHelper.invokeMethodAsync("GetCompletionAsync", code, request);
+        console.log("invoking GetCompletionAsync ... Done")
         const mappedItems = response.items.map(this._convertToVscodeCompletionItem);
 
         let lastCompletions = new Map();

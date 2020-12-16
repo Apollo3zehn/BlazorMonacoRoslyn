@@ -23,8 +23,7 @@ namespace OneDas.DataManagement.Explorer.Services
 
         #region Fields
 
-        private RoslynProject _completionProject;
-        private RoslynProject _diagnosticProject;
+        private RoslynProject _project;
         private OmniSharpCompletionService _completionService;
 
         #endregion
@@ -60,14 +59,12 @@ namespace {nameof(OneDas)}.{nameof(DataManagement)}.{nameof(Explorer)}
 }}
 ";
 
-            _completionProject = new RoslynProject("completion", this.DefaultCode);
-            _diagnosticProject = new RoslynProject("diagnostics", this.DefaultCode);
-            _diagnosticProject = _completionProject;
+            _project = new RoslynProject("completion", this.DefaultCode);
 
             var loggerFactory = LoggerFactory.Create(configure => { });
             var formattingOptions = new FormattingOptions();
 
-            _completionService = new OmniSharpCompletionService(_completionProject.Workspace, formattingOptions, loggerFactory);
+            _completionService = new OmniSharpCompletionService(_project.Workspace, formattingOptions, loggerFactory);
         }
 
         #endregion
@@ -85,9 +82,9 @@ namespace {nameof(OneDas)}.{nameof(DataManagement)}.{nameof(Explorer)}
         {
             Console.WriteLine("Invoking GetCompletionsAsnyc() ...");
 
-            _completionProject.UpdateCode(_completionProject.DocumentId, code);
+            _project.UpdateCode(_project.DocumentId, code);
 
-            var document = _completionProject.Workspace.CurrentSolution.GetDocument(_completionProject.DocumentId);
+            var document = _project.Workspace.CurrentSolution.GetDocument(_project.DocumentId);
             var completionResponse = await _completionService.Handle(completionRequest, document);
 
             Console.WriteLine("Invoking GetCompletionsAsnyc() ... Done.");
@@ -99,9 +96,9 @@ namespace {nameof(OneDas)}.{nameof(DataManagement)}.{nameof(Explorer)}
         {
             Console.WriteLine("Invoking UpdateDiagnosticsAsync() ...");
 
-            _diagnosticProject.UpdateCode(_diagnosticProject.DocumentId, code);
+            _project.UpdateCode(_project.DocumentId, code);
 
-            var compilation = await _diagnosticProject.Workspace.CurrentSolution.Projects.First().GetCompilationAsync();
+            var compilation = await _project.Workspace.CurrentSolution.Projects.First().GetCompilationAsync();
             var dotnetDiagnostics = compilation.GetDiagnostics();
 
             var diagnostics = dotnetDiagnostics.Select(current =>
